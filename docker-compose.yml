@@ -1,4 +1,4 @@
-version: "3"
+# version: "3"
 services:
   hadoop:
     build: .
@@ -15,8 +15,18 @@ services:
       # Montage des scripts MapReduce dans le conteneur
       - ./mapper.py:/opt/hadoop/mapper.py
       - ./reducer.py:/opt/hadoop/reducer.py
+
+      # 
+      - ./scripts:/opt/hadoop/streaming_scripts
+
+      # Monter les fichiers logs depuis leurs emplacements d’origine sur Windows.
+      - "C:/laragon/tmp/php_errors.log:/logs_local/php_errors.log:ro"
+      - "C:/laragon/bin/apache/httpd-2.4.62-240904-win64-VS17/logs/error.log:/logs_local/error.log:ro"
+      - "C:/laragon/bin/apache/httpd-2.4.62-240904-win64-VS17/logs/access.log:/logs_local/access.log:ro"
+      - "C:/laragon/data/mysql-8/mysqld.log:/logs_local/mysqld.log:ro"
     networks:
       - hadoop-net
+      - tp-elk_elk-network
 
 volumes:
   hadoop_data:

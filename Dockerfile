@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Définition de JAVA_HOME
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
-# Installation de Java, SSH, wget, tar, net-tools et sed
+# Installation de Java, SSH, wget, tar, net-tools, nano, cron et sed
 RUN apt-get update && apt-get install -y \
     openjdk-11-jre-headless \
     openssh-server \
@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     wget \
     tar \
     net-tools \
+    nano \
+    cron \
+    curl \
     sed && \
     mkdir /var/run/sshd
 
@@ -63,6 +66,19 @@ EXPOSE 9870 9864 8088 8042 22
 # Copie du script d'entrypoint qui lancera SSH, HDFS et YARN
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Création du dossier pour les scripts d'ingestion
+RUN mkdir -p /opt/scripts
+
+# Copier le script d'ingestion dans l'image
+COPY check_logs.sh /opt/scripts/check_logs.sh
+COPY ingest_logs.sh /opt/scripts/ingest_logs.sh
+COPY run_mapreduce.sh /opt/scripts/run_mapreduce.sh
+
+# Donner les droits d'exécution aux scripts
+RUN chmod +x /opt/scripts/check_logs.sh
+RUN chmod +x /opt/scripts/ingest_logs.sh
+RUN chmod +x /opt/scripts/run_mapreduce.sh
 
 # Lancement de l'entrypoint par défaut
 ENTRYPOINT ["/entrypoint.sh"]
